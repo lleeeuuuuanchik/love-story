@@ -20,6 +20,7 @@ export default defineVitestConfig({
 			reporter: ['text', 'json', 'html'], // Форматы отчетов
 			exclude : ['node_modules', 'dist', 'tests'],
 		},
+		passWithNoTests: true,
 		include:   ['tests/**/*.test.js', 'tests/**/*.test.ts'],
 		exclude:   ['node_modules', 'dist', 'tests/e2e/**/*'], // Исключаем E2E-тесты
 		reporters: ['verbose'], // Для подробного вываода исполнения функции
