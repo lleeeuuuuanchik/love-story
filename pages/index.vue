@@ -20,6 +20,39 @@ const hearts = computed(() => {
 	}));
 });
 
+// Player
+const audio = ref(null);
+const playing = ref(false);
+const progress = ref(0);
+const currentTime = ref(0);
+const duration = ref(0);
+
+function togglePlay() {
+	if (!audio.value) return;
+	playing.value ? audio.value.pause() : audio.value.play();
+	playing.value = !playing.value;
+}
+
+function onTimeUpdate() {
+	currentTime.value = audio.value.currentTime;
+	duration.value = audio.value.duration || 0;
+	progress.value = duration.value ? (currentTime.value / duration.value) * 100 : 0;
+}
+
+function seek(e) {
+	if (!audio.value || !duration.value) return;
+	const rect = e.currentTarget.getBoundingClientRect();
+	const ratio = (e.clientX - rect.left) / rect.width;
+	audio.value.currentTime = ratio * duration.value;
+}
+
+function formatTime(s) {
+	if (!s || isNaN(s)) return '0:00';
+	const m = Math.floor(s / 60);
+	const sec = Math.floor(s % 60).toString().padStart(2, '0');
+	return `${m}:${sec}`;
+}
+
 // Form
 const form = reactive({
 	name    : '',
@@ -80,6 +113,33 @@ async function handleSubmit() {
 					<div class="hero__emoji">💖</div>
 					<h1 class="hero__title">Привет! Ты мне очень понравилась</h1>
 					<p class="hero__sub">Я давно хотел написать тебе, но не знал как</p>
+				</div>
+
+				<!-- Player -->
+				<div class="player">
+					<audio
+						ref="audio"
+						src="/Umberto_Tozzi_-_Ti_amo_48361366.mp3"
+						@timeupdate="onTimeUpdate"
+						@ended="playing = false"
+					/>
+					<p class="player__label">🎵 Эту песню я слушал, думая о тебе...</p>
+					<div class="player__controls">
+						<button class="player__btn" @click="togglePlay">
+							<svg v-if="playing" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+								<rect x="5" y="4" width="4" height="16" rx="1"/>
+								<rect x="15" y="4" width="4" height="16" rx="1"/>
+							</svg>
+							<svg v-else viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+								<path d="M6 4.75a.75.75 0 0 1 1.14-.64l13 7.25a.75.75 0 0 1 0 1.28l-13 7.25A.75.75 0 0 1 6 19.25V4.75z"/>
+							</svg>
+						</button>
+						<div class="player__bar" @click="seek">
+							<div class="player__fill" :style="{ width: progress + '%' }" />
+						</div>
+						<span class="player__time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+					</div>
+					<p class="player__song">Umberto Tozzi — Ti Amo</p>
 				</div>
 
 				<!-- Text -->
@@ -240,6 +300,79 @@ async function handleSubmit() {
 @keyframes pulse {
 	0%, 100% { transform: scale(1); }
 	50%      { transform: scale(1.15); }
+}
+
+// Player
+.player {
+	width        : 100%;
+	background   : rgba(255, 255, 255, 0.07);
+	backdrop-filter: blur(12px);
+	border       : 1px solid rgba(255, 77, 109, 0.25);
+	border-radius: 20px;
+	padding      : 20px 24px;
+	display      : flex;
+	flex-direction: column;
+	gap          : 12px;
+
+	&__label {
+		color      : #ffb3c1;
+		font-size  : 0.95rem;
+		font-style : italic;
+		text-align : center;
+	}
+
+	&__controls {
+		display    : flex;
+		align-items: center;
+		gap        : 12px;
+	}
+
+	&__btn {
+		width        : 40px;
+		height       : 40px;
+		border-radius: 50%;
+		background   : linear-gradient(135deg, #ff4d6d, #c9184a);
+		border       : none;
+		color        : #fff;
+		font-size    : 1rem;
+		cursor       : pointer;
+		flex-shrink  : 0;
+		display      : flex;
+		align-items  : center;
+		justify-content: center;
+		transition   : transform 0.15s ease;
+
+		&:hover { transform: scale(1.1); }
+	}
+
+	&__bar {
+		flex         : 1;
+		height       : 4px;
+		background   : rgba(255, 255, 255, 0.15);
+		border-radius: 4px;
+		cursor       : pointer;
+		position     : relative;
+	}
+
+	&__fill {
+		height       : 100%;
+		background   : linear-gradient(90deg, #ff85a1, #ff4d6d);
+		border-radius : 4px;
+		transition   : width 0.1s linear;
+	}
+
+	&__time {
+		font-size  : 0.75rem;
+		color      : rgba(255, 179, 193, 0.7);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	&__song {
+		text-align : center;
+		font-size  : 0.8rem;
+		color      : rgba(255, 179, 193, 0.5);
+	}
 }
 
 // Card
