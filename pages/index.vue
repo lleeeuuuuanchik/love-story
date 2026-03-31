@@ -93,7 +93,7 @@ async function handleSubmit() {
 						пообщаться. Будет здорово, пообщаться.
 					</p>
 					<p class="card__accent">
-						Оставь свой Telegram — я обязательно напишу тебе!
+						Давай сходим выпить кофе/чай/арака/вино/чачу... 😂?
 					</p>
 				</div>
 
@@ -109,7 +109,7 @@ async function handleSubmit() {
 
 						<!-- Form -->
 						<form v-else class="form" @submit.prevent="handleSubmit">
-							<h2 class="form__title">Оставь контакт, и я обязательно напишу тебе!</h2>
+							<h2 class="form__title">Оставишь мне свой контакт?</h2>
 
 							<div class="field" :class="{ 'field--error': v$.name.$error }">
 								<label class="field__label">Как тебя зовут?</label>
