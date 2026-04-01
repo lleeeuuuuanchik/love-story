@@ -39,11 +39,9 @@ function onTimeUpdate() {
 	progress.value = duration.value ? (currentTime.value / duration.value) * 100 : 0;
 }
 
-function seek(e) {
+function seek(val) {
 	if (!audio.value || !duration.value) return;
-	const rect = e.currentTarget.getBoundingClientRect();
-	const ratio = (e.clientX - rect.left) / rect.width;
-	audio.value.currentTime = ratio * duration.value;
+	audio.value.currentTime = (val / 100) * duration.value;
 }
 
 function formatTime(s) {
@@ -134,7 +132,16 @@ async function handleSubmit() {
 								<path d="M6 4.75a.75.75 0 0 1 1.14-.64l13 7.25a.75.75 0 0 1 0 1.28l-13 7.25A.75.75 0 0 1 6 19.25V4.75z"/>
 							</svg>
 						</button>
-						<div class="player__bar" @click="seek">
+						<div class="player__seek">
+							<input
+								class="player__range"
+								type="range"
+								min="0"
+								max="100"
+								step="0.1"
+								:value="progress"
+								@input="seek($event.target.value)"
+							/>
 							<div class="player__fill" :style="{ width: progress + '%' }" />
 						</div>
 						<span class="player__time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
@@ -213,7 +220,7 @@ async function handleSubmit() {
 				<p class="footer">
 					сделано специально для тебя, милая незнакомка 💝
 					<br>
-					ты можешь найти меня в Telegram по нику <a href="https://t.me/lleeeuuuuanchik" target="_blank">@lleeeuuuuanchik</a>
+					Если вдруг что-то не получится сделать -> ты всегда сможешь найти меня в Telegram по нику <a href="https://t.me/lleeeuuuuanchik" target="_blank">@lleeeuuuuanchik</a>
 				</p>
 			</div>
 		</div>
@@ -345,20 +352,64 @@ async function handleSubmit() {
 		&:hover { transform: scale(1.1); }
 	}
 
-	&__bar {
-		flex         : 1;
-		height       : 4px;
-		background   : rgba(255, 255, 255, 0.15);
-		border-radius: 4px;
-		cursor       : pointer;
-		position     : relative;
+	&__seek {
+		flex    : 1;
+		position: relative;
+		height  : 20px;
+		display : flex;
+		align-items: center;
+	}
+
+	&__range {
+		position  : absolute;
+		inset     : 0;
+		width     : 100%;
+		height    : 100%;
+		opacity   : 0;
+		cursor    : pointer;
+		z-index   : 2;
+		margin    : 0;
 	}
 
 	&__fill {
-		height       : 100%;
+		position     : absolute;
+		left         : 0;
+		top          : 50%;
+		transform    : translateY(-50%);
+		height       : 5px;
 		background   : linear-gradient(90deg, #ff85a1, #ff4d6d);
-		border-radius : 4px;
+		border-radius: 4px;
 		transition   : width 0.1s linear;
+		pointer-events: none;
+
+		&::after {
+			content      : '';
+			position     : absolute;
+			right        : -7px;
+			top          : 50%;
+			transform    : translateY(-50%);
+			width        : 14px;
+			height       : 14px;
+			border-radius: 50%;
+			background   : #ff4d6d;
+			box-shadow   : 0 0 6px rgba(255, 77, 109, 0.6);
+		}
+	}
+
+	&__seek::before {
+		content      : '';
+		position     : absolute;
+		inset        : 50% 0;
+		transform    : translateY(-50%);
+		height       : 5px;
+		background   : rgba(255, 255, 255, 0.15);
+		border-radius: 4px;
+	}
+
+	&__seek:hover &__fill::after {
+		width : 16px;
+		height: 16px;
+		right : -8px;
 	}
 
 	&__time {
